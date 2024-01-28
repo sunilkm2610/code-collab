@@ -220,7 +220,7 @@ const Editor = ({ params }) => {
         <div className="overflow-y-auto overflow-x-hidden scrollbar-hide">
           {users.map((user) => {
             return (
-              <div className="mb-1 overflow-hidden w-max">
+              <div className="mb-1 overflow-hidden w-max" key={user.username}>
                 <Avatar
                   name={user.username}
                   color={"#000"}

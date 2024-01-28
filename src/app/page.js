@@ -63,7 +63,7 @@ export default function Home() {
           </button>
           <div>
             <text className="text-sm">
-              If you don't have an invitation then create{" "}
+              If you don&apos;t have an invitation then create
               <text
                 onClick={handleNewRoomClick}
                 className="text-purple-500 cursor-pointer hover:text-purple-600 transition underline"

@@ -35,6 +35,7 @@ import {
   kimbie,
 } from "@uiw/codemirror-themes-all";
 import { initSocket } from "../../../socket";
+import Link from "next/link";
 
 const themes = [
   { name: "Dracula", theme: dracula },
@@ -92,20 +93,7 @@ const Editor = ({ params }) => {
   const [currentFontSize, setCurrentFontSize] = useState(fontSizes[0].size);
   const [code, setCode] = useState("");
 
-  const [users, setusers] = useState([
-    { socketId: 1, username: "Sunil Kumar Marwal Rakesh" },
-    { socketId: 2, username: "Diksha" },
-    { socketId: 3, username: "Ravi" },
-    { socketId: 11, username: "Sunil Kumar M" },
-    { socketId: 12, username: "Diksha" },
-    { socketId: 13, username: "Ravi" },
-    { socketId: 12, username: "Sunil Kumar M" },
-    { socketId: 22, username: "Diksha" },
-    { socketId: 32, username: "Ravi" },
-    { socketId: 32, username: "Sunil Kumar M" },
-    { socketId: 32, username: "Diksha" },
-    { socketId: 33, username: "Ravi" },
-  ]);
+  const [users, setusers] = useState([]);
 
   const handleCopyRoomIdClick = () => {
     navigator.clipboard.writeText(params.roomId);
@@ -208,13 +196,16 @@ const Editor = ({ params }) => {
     <div className="h-screen flex">
       <div className="w-64 bg-slate-600 h-full p-2 flex flex-col">
         <div>
-          <Image
-            className="mix-blend-lighten"
-            src={Logo}
-            width={200}
-            height={70}
-            alt="logo"
-          />
+          <Link href="/">
+            <Image
+              className="mix-blend-lighten"
+              src={Logo}
+              width={200}
+              height={70}
+              alt="logo"
+            />
+          </Link>
+
           <hr className="h-[1px] bg-slate-700 border-none !mb-3" />
         </div>
         <div className="overflow-y-auto overflow-x-hidden scrollbar-hide">

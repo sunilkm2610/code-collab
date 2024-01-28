@@ -17,6 +17,19 @@
 }
 
 body {
+  .scrollbar-hide {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent; /* Firefox */
+
+    /* WebKit (Chrome, Safari) */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+  };
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -29,19 +42,5 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-}
-
-.scrollbar-hide {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent; /* Firefox */
-
-  /* WebKit (Chrome, Safari) */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
   }
 }

@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Logo from "../../assests/codecollab_logo.png";
+import Logo from "../../../assests/codecollab_logo.png";
 import toast from "react-hot-toast";
 import Avatar from "react-avatar";
 import CodeMirror from "@uiw/react-codemirror";
@@ -34,6 +34,7 @@ import {
   eclipse,
   kimbie,
 } from "@uiw/codemirror-themes-all";
+import { initSocket } from "../../../socket";
 
 const themes = [
   { name: "Dracula", theme: dracula },
@@ -82,12 +83,14 @@ const languageOptions = [
   { name: "C#", mode: csharp },
 ];
 
-const page = ({ params }) => {
+const Editor = ({ params }) => {
+  const socketRef = useRef(null);
   const [selectedLanguage, setSelectedLanguage] = useState(
     languageOptions[0].mode
   );
   const [currentTheme, setCurrentTheme] = useState(themes[0].theme);
   const [currentFontSize, setCurrentFontSize] = useState(fontSizes[0].size);
+  const [code, setCode] = useState("");
 
   const [users, setusers] = useState([
     { socketId: 1, username: "Sunil Kumar Marwal Rakesh" },
@@ -129,6 +132,78 @@ const page = ({ params }) => {
     }
   };
 
+  useEffect(() => {
+    const init = async () => {
+      console.log("JOINED");
+      socketRef.current = await initSocket();
+      socketRef.current.on("connect_error", (err) => handleErrors(err));
+      socketRef.current.on("connect_failed", (err) => handleErrors(err));
+
+      function handleErrors(e) {
+        console.log("socket error", e);
+        toast.error("Socket connection failed, try again later.");
+        // reactNavigator('/');
+      }
+
+      socketRef.current.emit("join", {
+        roomId: params.roomId,
+        username: params.username,
+      });
+
+      socketRef.current.on("joined", ({ clients, username, socketId }) => {
+        if (username !== params.username) {
+          toast.success(`${username} joined the room.`);
+          console.log(`${username} joined`);
+        }
+        setusers(clients);
+        console.log("sync-code", code);
+        // socketRef.current.emit("sync-code", {
+        //   newCode: code,
+        //   socketId,
+        // });
+      });
+      // socketRef.current.on("code-change", ({ newCode }) => {
+      //   // if (newCode !== null) {
+      //   // setCode(newCode);
+      //   console.log("coderrrrrrrrrrrrrr", newCode);
+      //   // }
+      // });
+    };
+    init();
+    return () => {
+      // socketRef.current.disconnect();
+      // socketRef.current.off(ACTIONS.JOINED);
+      // socketRef.current.off(ACTIONS.DISCONNECTED);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on("code-change", ({ newCode }) => {
+        if (newCode !== null) {
+          setCode(newCode);
+        }
+      });
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("code-change");
+      }
+    };
+  }, [socketRef.current]);
+
+  const handleChangeCode = (val) => {
+    // setCode(val);
+    socketRef.current.emit("code-change", {
+      roomId: params.roomId,
+      newCode: val,
+    });
+  };
+
+  // useEffect(()=>{
+  //   handleChangeCode()
+  // },[])
   return (
     <div className="h-screen flex">
       <div className="w-64 bg-slate-600 h-full p-2 flex flex-col">
@@ -176,17 +251,17 @@ const page = ({ params }) => {
       <div className="w-full overflow-auto">
         <div className="flex p-2">
           {/* <div className="flex flex-col"> */}
-            {/* <label>Select Language: </label> */}
-            <select
-              onChange={handleLanguageChange}
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            >
-              {languageOptions.map((lang) => (
-                <option key={lang.name} value={lang.name}>
-                  {lang.name}
-                </option>
-              ))}
-            </select>
+          {/* <label>Select Language: </label> */}
+          <select
+            onChange={handleLanguageChange}
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            {languageOptions.map((lang) => (
+              <option key={lang.name} value={lang.name}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
           {/* </div> */}
 
           <select
@@ -217,16 +292,15 @@ const page = ({ params }) => {
         <CodeMirror
           style={{ height: "calc(100vh - 3.5rem)" }}
           className={`overflow-auto text-${currentFontSize}`}
-          value={"console.log()"}
+          value={code}
           height="100%"
-          // extensions={javascript({ jsx: true })}
           extensions={selectedLanguage}
           theme={currentTheme}
-          // onChange={onChange}
+          onChange={handleChangeCode}
         />
       </div>
     </div>
   );
 };
 
-export default page;
+export default Editor;

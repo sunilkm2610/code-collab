@@ -24,7 +24,7 @@ export default function Home() {
       console.log('error-page')
       toast.error('Please provide roomId & username')
     }else{
-      router.push(`/editor/${roomId}`)
+      router.push(`/editor/${roomId}/${username}`)
     }
   };
 
